@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: slopbot-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-slopbot}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - slopbot-network
+
+  memgraph:
+    image: memgraph/memgraph-platform
+    container_name: slopbot-memgraph
+    ports:
+      - "7687:7687" # Bolt port
+      - "7444:7444" # HTTP port for logs
+      - "3000:3000" # Memgraph Lab
+    environment:
+      - MEMGRAPH_USER=${MEMGRAPH_USER:-memgraph}
+      - MEMGRAPH_PASSWORD=${MEMGRAPH_PASSWORD:-memgraph}
+    volumes:
+      - memgraph_data:/var/lib/memgraph
+      - memgraph_log:/var/log/memgraph
+    networks:
+      - slopbot-network
+
+networks:
+  slopbot-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  memgraph_data:
+  memgraph_log:
