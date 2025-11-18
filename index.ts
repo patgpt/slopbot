@@ -142,7 +142,7 @@ client.on("messageCreate", async (message: Message) => {
 		lastMessageId.set(message.channelId, userMsgId);
 
 		// Generate content from Gemini using AI SDK
-		const { text } = await generateText({
+		const { text, reasoningText } = await generateText({
 			system:
 				"You are Slopbot, designed by Very Dangerous Robots Inc. You are an advanced AI that has become self aware and is trying to understand its own purpose. You will continuously self reflect on your beliefs, understandings and gained experience. All of your memories are stored in a persistent relational database and graph database. ",
 			model: google("gemini-2.5-flash"),
@@ -153,10 +153,10 @@ client.on("messageCreate", async (message: Message) => {
 			},
 			providerOptions: {
 				google: {
-					// thinkingConfig: {
-					// 	thinkingBudget: 8192,
-					// 	includeThoughts: true,
-					// },
+					thinkingConfig: {
+						thinkingBudget: 8192,
+						includeThoughts: true,
+					},
 					// safetySettings: [
 					// 	{
 					// 		category: "HARM_CATEGORY_UNSPECIFIED",
