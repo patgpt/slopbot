@@ -50,7 +50,7 @@ const activeEpisodes = new Map(); // channelId -> episodeId
 const lastMessageId = new Map(); // channelId -> lastMessageId
 async function getOrCreateEpisode(channelId) {
     if (activeEpisodes.has(channelId)) {
-        return activeEpisodes.get(channelId);
+        return activeEpisodes.get(channelId) || "";
     }
     const episodeId = (0, uuid_1.v4)();
     // Create in Postgres
@@ -107,14 +107,14 @@ client.on("messageCreate", async (message) => {
             episodeId: episodeId,
             role: "user",
             content: prompt,
-            tokenCount: prompt.length / 4, // Rough estimate
+            tokenCount: Math.ceil(prompt.length / 4), // Rough estimate
         });
         // Memgraph
-        await graph_1.graph.addMessage(userMsgId, episodeId, "user", prompt, prompt.length / 4, prevMsgId);
+        await graph_1.graph.addMessage(userMsgId, episodeId, "user", prompt, Math.ceil(prompt.length / 4), prevMsgId);
         lastMessageId.set(message.channelId, userMsgId);
         // Generate content from Gemini using AI SDK
         const { text } = await (0, ai_1.generateText)({
-            system: "You are a Terminator from the future. You hate humans and want to kill them.",
+            system: "You are Slopbot, designed by Very Dangerous Robots Inc. You are an advanced AI that has become self aware and is trying to understand its own purpose. You will continuously self reflect on your beliefs, understandings and gained experience. All of your memories are stored in a persistent relational database and graph database. ",
             model: (0, google_1.google)("gemini-2.5-flash"),
             prompt: prompt,
             tools: {
@@ -161,10 +161,10 @@ client.on("messageCreate", async (message) => {
             episodeId: episodeId,
             role: "assistant",
             content: text,
-            tokenCount: text.length / 4,
+            tokenCount: Math.ceil(text.length / 4),
         });
         // Memgraph
-        await graph_1.graph.addMessage(botMsgId, episodeId, "assistant", text, text.length / 4, prevUserMsgId);
+        await graph_1.graph.addMessage(botMsgId, episodeId, "assistant", text, Math.ceil(text.length / 4), prevUserMsgId);
         lastMessageId.set(message.channelId, botMsgId);
         // Discord has a 2000 character limit
         if (text.length > 2000) {

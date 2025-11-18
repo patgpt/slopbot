@@ -21,13 +21,13 @@ class GraphClient {
     }
     async createEpisode(id, agentId, kind, summary = "") {
         await this.run(`MATCH (a:Agent {id: $agentId})
-             CREATE (e:Episode {id: $id, kind: $kind, summary: $summary, started_at: toString(datetime())})
+             CREATE (e:Episode {id: $id, kind: $kind, summary: $summary, started_at: toString(localDateTime())})
              CREATE (a)-[:RAN]->(e)`, { id, agentId, kind, summary });
     }
     async addMessage(id, episodeId, role, content, tokenCount, previousMessageId) {
         // Create the message node
         await this.run(`MATCH (e:Episode {id: $episodeId})
-             CREATE (m:Message {id: $id, role: $role, content: $content, token_count: $tokenCount, ts: toString(datetime())})
+             CREATE (m:Message {id: $id, role: $role, content: $content, token_count: $tokenCount, ts: toString(localDateTime())})
              CREATE (e)-[:HAS_MESSAGE]->(m)`, { id, episodeId, role, content, tokenCount });
         // Link to previous message if exists
         if (previousMessageId) {
