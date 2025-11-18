@@ -9,25 +9,35 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-slopbot}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - slopbot-network
-
+  
   memgraph:
-    image: memgraph/memgraph-platform
-    container_name: slopbot-memgraph
+    image: memgraph/memgraph-mage:latest
+    container_name: memgraph-mage
     ports:
-      - "7687:7687" # Bolt port
-      - "7444:7444" # HTTP port for logs
-      - "3000:3000" # Memgraph Lab
-    environment:
-      - MEMGRAPH_USER=${MEMGRAPH_USER:-memgraph}
-      - MEMGRAPH_PASSWORD=${MEMGRAPH_PASSWORD:-memgraph}
+      - "7687:7687"
+      - "7444:7444"
+    command: ["--log-level=TRACE"]
     volumes:
       - memgraph_data:/var/lib/memgraph
       - memgraph_log:/var/log/memgraph
+    networks:
+      - slopbot-network
+
+  lab:
+    image: memgraph/lab:latest
+    container_name: memgraph-lab
+    ports:
+      - "3000:3000"
+    depends_on:
+      - memgraph
+    environment:
+      - QUICK_CONNECT_MG_HOST=memgraph
+      - QUICK_CONNECT_MG_PORT=7687
     networks:
       - slopbot-network
 

@@ -8,6 +8,6 @@ export default defineConfig({
 	dbCredentials: {
 		url:
 			process.env.POSTGRES_URL ||
-			"postgres://postgres:postgres@localhost:5432/slopbot",
+			"postgres://postgres:postgres@localhost:5433/slopbot",
 	},
 });
